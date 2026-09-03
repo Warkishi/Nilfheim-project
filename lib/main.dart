@@ -29,7 +29,7 @@ class GameHomeScreen extends StatefulWidget {
   State<GameHomeScreen> createState() => _GameHomeScreenState();
 }
 
-class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProviderStateMixin {
+class _GameHomeScreenState extends State<GameHomeScreen> {
   int currentFloor = 1;
   int gems = 1000;
   int pityCounter = 0;
@@ -43,8 +43,16 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
   List<String> tiles = ['Monster', 'Chest', 'Trap', 'Monster', 'Boss', 'Trap', 'Heal', 'Monster', 'Chest'];
 
   List<Map<String, dynamic>> roster = [
-    {'name': 'Loki', 'class': 'Tank', 'hp': 300, 'maxHp': 300, 'atk': 25, 'stars': 3, 'color': Colors.blue},
-    {'name': 'Sera', 'class': 'Mage', 'hp': 150, 'maxHp': 150, 'atk': 45, 'stars': 4, 'color': Colors.purple},
+    {'name': 'Loki', 'class': 'Tank', 'hp': 300, 'maxHp': 300, 'atk': 25, 'stars': 3, 'colorIndex': 0},
+    {'name': 'Sera', 'class': 'Mage', 'hp': 150, 'maxHp': 150, 'atk': 45, 'stars': 4, 'colorIndex': 2},
+  ];
+
+  final List<Color> classColors = [
+    Colors.blue,
+    Colors.red,
+    Colors.purple,
+    Colors.green,
+    Colors.amber,
   ];
 
   @override
@@ -94,7 +102,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
       });
     } else {
       autoBattleTimer?.cancel();
-      log("MODE AUTO-BATTLE DESACTIVÉ");
+      log("MODE AUTO-BATTLE DÉSACTIVÉ");
     }
   }
 
@@ -126,7 +134,6 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
 
     final names = ['Kael', 'Balthazar', 'Evelyn', 'Yuto', 'Ragnar', 'Freya'];
     final classes = ['Tank', 'Assassin', 'Mage', 'Healer'];
-    final colors = [Colors.blue, Colors.red, Colors.purple, Colors.green];
     int idx = random.nextInt(4);
 
     String heroName = names[random.nextInt(names.length)];
@@ -137,7 +144,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
       'maxHp': 120 * stars,
       'atk': 20 * stars,
       'stars': stars,
-      'color': stars == 5 ? Colors.amber : colors[idx],
+      'colorIndex': stars == 5 ? 4 : idx,
     });
 
     log("GACHA ($stars★) : $heroName rejoint l'escouade !");
@@ -152,7 +159,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
     setState(() {
       if (type == 'Monster' || type == 'Boss') {
         bool isCrit = random.nextInt(100) < 35;
-        int damageDealt = roster[0]['atk'] * (isCrit ? 2 : 1);
+        int damageDealt = (roster[0]['atk'] as int) * (isCrit ? 2 : 1);
         int monsterAtk = (type == 'Boss' ? 60 : 25) * currentFloor;
 
         roster[0]['hp'] = max(0, (roster[0]['hp'] as int) - monsterAtk);
@@ -161,7 +168,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
           isCrit ? Colors.amber : Colors.redAccent,
         );
 
-        if (roster[0]['hp'] > 0) {
+        if ((roster[0]['hp'] as int) > 0) {
           gems += (type == 'Boss' ? 250 : 75);
           log("VICTOIRE : $damageDealt dégâts infligés.");
         } else {
@@ -209,7 +216,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
               ),
             ),
 
-            // Barre de Logs & Animation Dégâts
+            // Logs & Animation Dégâts
             Container(
               width: double.infinity,
               height: 40,
@@ -222,7 +229,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
                   if (lastDamageText.isNotEmpty)
                     Text(
                       lastDamageText,
-                      style: TextStyle(color: damageColor, fontSize: 18, fontWeight: FontWeight.black),
+                      style: TextStyle(color: damageColor, fontSize: 18, fontWeight: FontWeight.w900),
                     ),
                 ],
               ),
@@ -309,11 +316,12 @@ class _GameHomeScreenState extends State<GameHomeScreen> with SingleTickerProvid
                       itemCount: roster.length,
                       itemBuilder: (ctx, i) {
                         final hero = roster[i];
+                        int colorIdx = hero['colorIndex'] as int;
                         return Card(
                           color: const Color(0xFF161926),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: hero['color'] as Color,
+                              backgroundColor: classColors[colorIdx],
                               child: Text("${hero['stars']}★", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
                             ),
                             title: Text("${hero['name']} (${hero['class']})"),
