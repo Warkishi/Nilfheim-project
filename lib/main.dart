@@ -1,123 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-enum CharacterClass { Tank, Assassin, Mage, Healer }
-
-class ClassAssets {
-  static IconData getIcon(CharacterClass charClass) {
-    switch (charClass) {
-      case CharacterClass.Tank:
-        return Icons.shield;
-      case CharacterClass.Assassin:
-        return Icons.flash_on;
-      case CharacterClass.Mage:
-        return Icons.auto_awesome;
-      case CharacterClass.Healer:
-        return Icons.favorite;
-    }
-  }
-
-  static Color getColor(CharacterClass charClass) {
-    switch (charClass) {
-      case CharacterClass.Tank:
-        return const Color(0xFF3B82F6);
-      case CharacterClass.Assassin:
-        return const Color(0xFFEF4444);
-      case CharacterClass.Mage:
-        return const Color(0xFFA855F7);
-      case CharacterClass.Healer:
-        return const Color(0xFF10B981);
-    }
-  }
-}
-
-enum TileType { empty, monster, chest, trap }
-
-class Tile {
-  final String id;
-  final String name;
-  final TileType type;
-  final IconData icon;
-  final Color color;
-
-  Tile({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.icon,
-    required this.color,
-  });
-}
-
-class TileRegistry {
-  static Tile get emptyTile => Tile(id: 'empty', name: 'Exploré', type: TileType.empty, icon: Icons.crop_square, color: const Color(0xFF4B5563));
-  static Tile get monsterTile => Tile(id: 'monster', name: 'Ennemi', type: TileType.monster, icon: Icons.bug_report, color: const Color(0xFFDC2626));
-  static Tile get chestTile => Tile(id: 'chest', name: 'Trésor', type: TileType.chest, icon: Icons.card_giftcard, color: const Color(0xFFF59E0B));
-  static Tile get trapTile => Tile(id: 'trap', name: 'Piège', type: TileType.trap, icon: Icons.bolt, color: const Color(0xFF9333EA));
-}
-
-class Character {
-  final String id;
-  final String name;
-  final CharacterClass charClass;
-  final int rarity;
-  int level;
-  int hp;
-  int maxHp;
-  int attack;
-  int defense;
-  bool isDead;
-
-  Character({
-    required this.id,
-    required this.name,
-    required this.charClass,
-    required this.rarity,
-    this.level = 1,
-    required this.hp,
-    required this.maxHp,
-    required this.attack,
-    required this.defense,
-    this.isDead = false,
-  });
-
-  Color get rarityColor {
-    switch (rarity) {
-      case 5: return const Color(0xFFF59E0B);
-      case 4: return const Color(0xFFC084FC);
-      case 3: return const Color(0xFF60A5FA);
-      default: return const Color(0xFF9CA3AF);
-    }
-  }
-
-  static Character generateRandom() {
-    final random = Random();
-    final names = ["Loki", "Anis", "Evelyn", "Kael", "Yuto", "Sera", "Balthazar"];
-
-    int rarityRoll = random.nextInt(100);
-    int rarity = 1;
-    if (rarityRoll > 92) rarity = 5;
-    else if (rarityRoll > 75) rarity = 4;
-    else if (rarityRoll > 50) rarity = 3;
-    else if (rarityRoll > 25) rarity = 2;
-
-    CharacterClass selectedClass = CharacterClass.values[random.nextInt(CharacterClass.values.length)];
-    int baseHp = (selectedClass == CharacterClass.Tank) ? 180 : 100;
-    int baseAtk = (selectedClass == CharacterClass.Assassin) ? 32 : 18;
-
-    return Character(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      name: names[random.nextInt(names.length)],
-      charClass: selectedClass,
-      rarity: rarity,
-      hp: baseHp * rarity,
-      maxHp: baseHp * rarity,
-      attack: baseAtk * rarity,
-      defense: 5 * rarity,
-    );
-  }
-}
-
 void main() {
   runApp(const PickMeUpGame());
 }
@@ -146,58 +29,45 @@ class GameHomeScreen extends StatefulWidget {
 }
 
 class _GameHomeScreenState extends State<GameHomeScreen> {
-  List<Character> roster = [];
   int currentFloor = 1;
   int gems = 300;
-  List<Tile> currentGrid = [];
+  List<String> tiles = ['Monster', 'Chest', 'Trap', 'Monster', 'Chest', 'Trap', 'Empty', 'Monster', 'Chest'];
+  List<Map<String, dynamic>> roster = [
+    {'name': 'Loki', 'class': 'Tank', 'hp': 180, 'maxHp': 180, 'atk': 18, 'stars': 3, 'color': Colors.blue},
+    {'name': 'Anis', 'class': 'Mage', 'hp': 100, 'maxHp': 100, 'atk': 32, 'stars': 4, 'color': Colors.purple},
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _generateFloorGrid();
-    roster.add(Character.generateRandom());
-  }
-
-  void _generateFloorGrid() {
-    final random = Random();
-    List<Tile> possibleTiles = [
-      TileRegistry.monsterTile,
-      TileRegistry.chestTile,
-      TileRegistry.trapTile,
-      TileRegistry.monsterTile,
-    ];
-    setState(() {
-      currentGrid = List.generate(9, (_) => possibleTiles[random.nextInt(possibleTiles.length)]);
-    });
-  }
-
-  void summonCharacter() {
+  void summon() {
     if (gems < 100) return;
+    final random = Random();
+    final names = ['Kael', 'Sera', 'Balthazar', 'Evelyn', 'Yuto'];
+    final classes = ['Tank', 'Assassin', 'Mage', 'Healer'];
+    final colors = [Colors.blue, Colors.red, Colors.purple, Colors.green];
+    int idx = random.nextInt(4);
+
     setState(() {
       gems -= 100;
-      roster.add(Character.generateRandom());
+      roster.add({
+        'name': names[random.nextInt(names.length)],
+        'class': classes[idx],
+        'hp': 120,
+        'maxHp': 120,
+        'atk': 25,
+        'stars': random.nextInt(3) + 1,
+        'color': colors[idx],
+      });
     });
   }
 
-  void interactWithTile(Tile tile, int index) {
-    if (tile.type == TileType.empty) return;
-    List<Character> alive = roster.where((c) => !c.isDead).toList();
-    if (alive.isEmpty) return;
-
+  void interactTile(int index) {
     setState(() {
-      if (tile.type == TileType.monster) {
+      if (tiles[index] == 'Monster') {
         currentFloor++;
         gems += 150;
-        _generateFloorGrid();
-      } else if (tile.type == TileType.chest) {
+      } else if (tiles[index] == 'Chest') {
         gems += 100;
-        currentGrid[index] = TileRegistry.emptyTile;
-      } else if (tile.type == TileType.trap) {
-        for (var hero in alive) {
-          hero.hp = max(1, hero.hp - 15);
-        }
-        currentGrid[index] = TileRegistry.emptyTile;
       }
+      tiles[index] = 'Explored';
     });
   }
 
@@ -210,169 +80,74 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
             // Top Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF161926),
-                border: Border(bottom: BorderSide(color: Color(0xFF2A2E45), width: 2)),
-              ),
+              color: const Color(0xFF161926),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("DONJON", style: TextStyle(fontSize: 10, color: Colors.grey, letterSpacing: 2)),
-                      Text("Étage $currentFloor", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.black, color: Colors.amber)),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0D0F17),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.amber.withOpacity(0.5)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.diamond, color: Colors.cyanAccent, size: 18),
-                        const SizedBox(width: 6),
-                        Text("$gems", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
-                  ),
+                  Text("Étage $currentFloor", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.amber)),
+                  Text("💎 $gems", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
                 ],
               ),
             ),
-
-            // Main Content
+            // Contenu scrollable
             Expanded(
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Grille 3x3
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                       ),
-                      itemCount: currentGrid.length,
+                      itemCount: tiles.length,
                       itemBuilder: (ctx, i) {
-                        final tile = currentGrid[i];
-                        return InkWell(
-                          onTap: () => interactWithTile(tile, i),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF161926),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: tile.color.withOpacity(0.8), width: 2),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(tile.icon, color: tile.color, size: 28),
-                                const SizedBox(height: 4),
-                                Text(
-                                  tile.name.toUpperCase(),
-                                  style: TextStyle(color: tile.color, fontSize: 10, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF161926),
+                            padding: EdgeInsets.zero,
                           ),
+                          onPressed: () => interactTile(i),
+                          child: Text(tiles[i], style: const TextStyle(fontSize: 12, color: Colors.white)),
                         );
                       },
                     ),
-
                     const SizedBox(height: 16),
-
+                    // Bouton Invocation
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD97706),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: summonCharacter,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.auto_awesome, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text("INVOCATION (100 💎)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
-                          ],
-                        ),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[800]),
+                        onPressed: summon,
+                        child: const Text("INVOCATION (100 💎)", style: TextStyle(color: Colors.white)),
                       ),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("VOTRE ÉQUIPE", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.5)),
-                        Text("${roster.length} Héros", style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
+                    const SizedBox(height: 20),
+                    // Équipe
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("ÉQUIPE (${roster.length} Héros)", style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 10),
-
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: roster.length,
                       itemBuilder: (ctx, i) {
                         final hero = roster[i];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF161926),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: hero.rarityColor.withOpacity(0.6), width: 1.5),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: ClassAssets.getColor(hero.charClass).withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: ClassAssets.getColor(hero.charClass)),
-                                ),
-                                child: Icon(ClassAssets.getIcon(hero.charClass), color: ClassAssets.getColor(hero.charClass), size: 22),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(hero.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                        const SizedBox(width: 6),
-                                        Text("${hero.rarity}★", style: TextStyle(color: hero.rarityColor, fontWeight: FontWeight.bold, fontSize: 12)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: LinearProgressIndicator(
-                                        value: hero.hp / hero.maxHp,
-                                        backgroundColor: Colors.black38,
-                                        color: ClassAssets.getColor(hero.charClass),
-                                        minHeight: 6,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text("Niv. ${hero.level} | ATQ: ${hero.attack} | PV: ${hero.hp}/${hero.maxHp}", style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                                  ],
-                                ),
-                              ),
-                            ],
+                        return Card(
+                          color: const Color(0xFF161926),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: hero['color'] as Color,
+                              child: Text((hero['class'] as String)[0], style: const TextStyle(color: Colors.white)),
+                            ),
+                            title: Text("${hero['name']} (${hero['class']}) - ${hero['stars']}★"),
+                            subtitle: Text("PV: ${hero['hp']}/${hero['maxHp']} | ATQ: ${hero['atk']}"),
                           ),
                         );
                       },
