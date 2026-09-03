@@ -5,10 +5,16 @@ on:
     branches: [ "main", "master" ]
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  deploy-web:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
@@ -36,9 +42,10 @@ jobs:
     - name: Build Web Application
       run: flutter build web --release --base-href "/Nilfheim-project/"
 
-    - name: Deploy to GitHub Pages Branch
-      uses: Peaceiris/actions-gh-pages@v3.9.3
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/web
-        force_orphan: true
+        path: build/web
+
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v4
