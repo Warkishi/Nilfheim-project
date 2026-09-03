@@ -1,37 +1,18 @@
-name: Build Web App
+name: pick_me_up_game
+description: "Jeu mobile Pick Me Up"
+publish_to: 'none'
 
-on:
-  push:
-    branches: [ "main", "master" ]
+environment:
+  sdk: '>=3.0.0 <4.0.0'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
-
-    - name: Repair Flutter project structure
-      run: flutter create --overwrite .
-
-    - name: Install dependencies
-      run: flutter pub get
-
-    - name: Build Web
-      run: flutter build web --release
-
-    - name: Upload Web Build
-      uses: actions/upload-artifact@v4
-      with:
-        name: web-game
-        path: build/web
+flutter:
+  uses-material-design: true
