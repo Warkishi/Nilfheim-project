@@ -20,12 +20,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Java
-      uses: actions/setup-java@v5
-      with:
-        distribution: 'zulu'
-        java-version: '17'
-
     - name: Install Flutter SDK
       run: |
         git clone https://github.com/flutter/flutter.git -b stable --depth 1
@@ -38,7 +32,7 @@ jobs:
         flutter pub get
 
     - name: Build Web Application
-      run: flutter build web --release --base-href "/Nilfheim-project/" --no-tree-shake-icons
+      run: flutter build web --release --base-href "/Nilfheim-project/"
 
     - name: Upload Artifact
       uses: actions/upload-pages-artifact@v3
