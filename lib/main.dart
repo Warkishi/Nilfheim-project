@@ -40,7 +40,7 @@ class Tile {
   final IconData icon;
   final Color color;
 
-  const Tile({
+  Tile({
     required this.id,
     required this.name,
     required this.type,
@@ -50,10 +50,10 @@ class Tile {
 }
 
 class TileRegistry {
-  static const Tile emptyTile = Tile(id: 'empty', name: 'Exploré', type: TileType.empty, icon: Icons.crop_square, color: Color(0xFF4B5563));
-  static const Tile monsterTile = Tile(id: 'monster', name: 'Ennemi', type: TileType.monster, icon: Icons.bug_report, color: Color(0xFFDC2626));
-  static const Tile chestTile = Tile(id: 'chest', name: 'Trésor', type: TileType.chest, icon: Icons.card_giftcard, color: Color(0xFFF59E0B));
-  static const Tile trapTile = Tile(id: 'trap', name: 'Piège', type: TileType.trap, icon: Icons.bolt, color: Color(0xFF9333EA));
+  static Tile get emptyTile => Tile(id: 'empty', name: 'Exploré', type: TileType.empty, icon: Icons.crop_square, color: const Color(0xFF4B5563));
+  static Tile get monsterTile => Tile(id: 'monster', name: 'Ennemi', type: TileType.monster, icon: Icons.bug_report, color: const Color(0xFFDC2626));
+  static Tile get chestTile => Tile(id: 'chest', name: 'Trésor', type: TileType.chest, icon: Icons.card_giftcard, color: const Color(0xFFF59E0B));
+  static Tile get trapTile => Tile(id: 'trap', name: 'Piège', type: TileType.trap, icon: Icons.bolt, color: const Color(0xFF9333EA));
 }
 
 class Character {
@@ -207,7 +207,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header Top Bar
+            // Top Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: const BoxDecoration(
@@ -243,7 +243,7 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
               ),
             ),
 
-            // Contenu scrollable
+            // Main Content
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -251,7 +251,6 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Grille
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -289,7 +288,6 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
 
                     const SizedBox(height: 16),
 
-                    // Bouton Invocation
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -299,9 +297,9 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: summonCharacter,
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: const [
                             Icon(Icons.auto_awesome, color: Colors.white),
                             SizedBox(width: 8),
                             Text("INVOCATION (100 💎)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
@@ -312,7 +310,6 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Section Équipe
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -322,7 +319,6 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Liste des héros
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
