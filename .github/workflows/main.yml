@@ -31,14 +31,14 @@ jobs:
         git clone https://github.com/flutter/flutter.git -b stable --depth 1
         echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
 
-    - name: Configure & Generate Web
+    - name: Configure Web
       run: |
         flutter config --enable-web
         flutter create --platforms web .
         flutter pub get
 
-    - name: Build Web App
-      run: flutter build web --release --base-href "/Nilfheim-project/" --no-tree-shake-icons
+    - name: Build Web Application
+      run: flutter build web --release --web-renderer canvaskit --base-href "/Nilfheim-project/" --no-tree-shake-icons --verbose
 
     - name: Upload Artifact
       uses: actions/upload-pages-artifact@v3
