@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -21,18 +21,18 @@ jobs:
       with:
         channel: 'stable'
 
-    - name: Enable Web Support
+    - name: Enable Web Platform
       run: |
         flutter config --enable-web
-        flutter create . --platforms=web --offline
+        flutter create --platforms web .
 
-    - name: Install dependencies
+    - name: Get Dependencies
       run: flutter pub get
 
     - name: Build Web
-      run: flutter build web --release
+      run: flutter build web --release --no-pub
 
-    - name: Upload Web Build
+    - name: Upload Web Artifact
       uses: actions/upload-artifact@v4
       with:
         name: web-game
