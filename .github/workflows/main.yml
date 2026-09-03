@@ -1,4 +1,4 @@
-name: Build and Deploy Web App
+name: Deploy Web Game
 
 on:
   push:
@@ -8,18 +8,19 @@ permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  deploy-web:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: Setup Java
       uses: actions/setup-java@v5
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Set up Flutter
+    - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
@@ -32,11 +33,12 @@ jobs:
     - name: Get Dependencies
       run: flutter pub get
 
-    - name: Build Web
+    - name: Build Web Application
       run: flutter build web --release --base-href "/Nilfheim-project/"
 
-    - name: Deploy to GitHub Pages
-      uses: Peaceiris/actions-gh-pages@v3
+    - name: Deploy to GitHub Pages Branch
+      uses: Peaceiris/actions-gh-pages@v3.9.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/web
+        force_orphan: true
